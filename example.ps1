@@ -1,0 +1,1 @@
+Copy-BuildToVersionFolder -SourcePath G:\devspace\projects\powershell\quicklog -DestinationPath G:\devspace\projects\powershell\quicklog\dist -FilesToCopy @("quicklog.ps1") -FoldersToCopy @("libs") -IncrementVersion "build" -apira
