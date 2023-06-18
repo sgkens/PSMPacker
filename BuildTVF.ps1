@@ -1,17 +1,17 @@
 
 <#PSScriptInfo
 
-.VERSION 0.1.0.0
+.VERSION 0.0.26.0
 
 .GUID 19a4ba0b-0bb6-4ec7-98ed-4367089aa81d
 
-.AUTHOR snoonx / snoonx
+.AUTHOR Snoonx
 
-.COMPANYNAME snoonx
+.COMPANYNAME Snoonx
 
-.COPYRIGHT 2023 snoonx. All rights reserved.
+.COPYRIGHT 2023 Snoonx. All rights reserved.
 
-.TAGS automation
+.TAGS automation, build, version, script, powershell, utility
 
 .LICENSEURI https://choosealicense.com/licenses/mit
 
@@ -21,7 +21,7 @@
 
 .EXTERNALMODULEDEPENDENCIES 
 
-.REQUIREDSCRIPTS G:\devspace\projects\powershell\_repos\gapira/BuildTVF-.ps1,G:\devspace\projects\powershell\_repos\gapira/BuildTVF-.ps1
+.REQUIREDSCRIPTS .\libs\New-BuildTVF.ps1
 
 .EXTERNALSCRIPTDEPENDENCIES
 
@@ -35,9 +35,8 @@ https://gitlab.snowlab.tk/powershell/BuildTVF/-/blob/main/Releases.md
 <# 
 
 .DESCRIPTION 
- Build To Version Builder is a powershell utility module to copy a set number of script 
+ BuildTVF or "Build To Version Folder" is a powershell utility module to help with the creation of versioned folders for software releases, mainly for use with GitLab CI/CD pipelines. Build for use with powershell modules and scriptfiles.
 
 #> 
 Param()
-
 

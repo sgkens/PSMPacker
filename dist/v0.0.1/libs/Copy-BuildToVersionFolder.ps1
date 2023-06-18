@@ -1,14 +1,21 @@
 function Copy-BuildToVersionFolder{
     [CmdletBinding()]
     param (
-        [parameter(mandatory=$true)][string]$SourcePath,
-        [parameter(mandatory=$true)][string]$DestinationPath,
+        [parameter(mandatory=$true)]
+        [string]$SourcePath,
+        [parameter(mandatory=$true)]
+        [string]$DestinationPath,
+        [parameter(mandatory = $false)]
         [string[]]$FilesToCopy = @(),
+        [parameter(mandatory = $false)]
         [string[]]$AdditionalFiles = @(),
+        [parameter(mandatory = $false)]
         [string[]]$FoldersToCopy = @(),
+        [parameter(mandatory = $false)]
         [ValidateSet("major", "minor", "build")]
         [string]$IncrementVersion = "build",
-        [parameter(ValueFromPipeline=$true)][switch]$apiraBuild = $false
+        [parameter(ValueFromPipeline=$true)]
+        [switch]$apiraBuild = $false
     )
     write-host -foregroundColor Cyan "|| BUILD MAKER ||"
     write-host -foregroundColor yellow "||-----> Starting Build Proccess"
