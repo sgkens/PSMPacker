@@ -1,11 +1,12 @@
-using module libs\New-BuildTVF.psm1
-New-BuildTVF -SourcePath G:\devspace\projects\powershell\_repos\BuildTVF `
+using module libs\Build-Module.psm1
+Build-Module -SourcePath G:\devspace\projects\powershell\_repos\BuildTVF `
              -DestinationPath G:\devspace\projects\powershell\_repos\BuildTVF\dist `
-             -Name "BuildTVF" `
-             -IncrementVersion "build" `
-             -FilesToCopy @("buildTVF.ps1","readme.md","license") `
+             -Name "PSMPacker" `
+             -IncrementVersion None `
+             -FilesToCopy @("PSMPacker.ps1","license") `
              -FoldersToCopy @("libs") `
-             -pssi
+             -ScriptFile `
+             -Version 0.2.0
 
 
 

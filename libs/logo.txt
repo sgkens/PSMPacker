@@ -7,7 +7,5 @@
 88b,   ,a8"   88,      `8b,d8'      88     
 8Y"Ybbd8"'    "Y888      "8"        88                                                                                                                                                                
 --------------------------------------
--o Version=v0.1.3,Auther=Snoonx
--o RepoSize=<size>,Builds=<builds>,LatestBuildSize=<lbsize>
--o Docu=https://gitlab.snowlab.tk/powershell/quicklog/-/blob/main
+-o Version=v0.1.3
 --------------------------------------
