@@ -1,42 +1,85 @@
-# author: mnoxx @ proton me
-# date: Saturday, 24 September 2022 2:24:20 AM
-# version: v1.0
-# env: powershell(5.x), pwsh(7.x)
+# author: G K. Snow
+# date: Friday, 23 June 2023 8:52:04 PM
+# Config version: v1.0
 stages:
-  - build # dependancies
-  - pester # pester test script
-  - test_pwsh # test powershell core latest
-  - test_powershell # test powershell
-  - deploy_psprivate # deploy to psgallary private instance
-  - deploy_psgallary # deploy to psgallary
-build-job:
-  stage: build
+  - Test-ScriptFileInfo # dependancies
+  - Build-PSModule # Build the Module 
+  - Build-NuPkg # Build NuPkG File Using NuPSForge Module
+  - Deploy-GitlabPackageRepo # deploy to psgallary
+  - Mirror-to-Microsoft.PSGallary # deploy to psgallary
+  - Build-MakeRelease # Build Release
+  - Copy-Build-To-GoogleDrive # Copy Build To Google Drive
+
+# -----------------------------------------------
+# ScriptFileInfo JOB - run Test-ScriptFileInfo 
+# -----------------------------------------------
+Test-ScriptFileInfo-job:
+  stage: Test-ScriptFileInfo
+  script:
+    - pwsh.exe
+    - Test-ScriptFileInfo -Path .\PSMPacker.ps1
+
+Build-PSModule-job:
+  stage: Build-PSModule
+  script:
+    - pwsh.exe
+    - .\build.ps1
+  rules:
+    - if: '$CI_JOB_NAME == "Test-ScriptFileInfo-job"'
+      when: on_success
+# -----------------------------------------------
+# PSSCriptA JOB - run PsScriptA.ps1 Against
+# -----------------------------------------------
+Build-NuPkg-job:
+  stage: Build-NuPkg
   script:
     - pwsh.exe
     - write-host -f green "template ci\cd config successfull"
-pester-job:
-  stage: pester
+# -----------------------------------------------
+# BUILD JOB - BUILD PowerShell Module For Release
+# -----------------------------------------------
+Build-PSModule-job:
+  stage: Build-PSModule
+  script:
+    - pwsh
+    - write-host -f green "Running -> Build-PSModule-job"
+    - export CI_COMMIT_MESSAGE="$(git log --format=%B -n 1)"
+  rules:
+    - if: '$CI_JOB_NAME == "Test-PSSCriptA-job"'
+      when: on_success
+    - exists:
+        - $CI_COMMIT_MESSAGE
+    - exists:
+        - "$CI_COMMIT_MESSAGE | grep -E (smver: Major|smver: Minor|smver: Patch)"
+    - if: '$CI_COMMIT_REF_NAME == "main"'
+      when: always
+
+Test-Cmdlet-job:
+  stage: Test-Cmdlet-Functions
   script:
     - pwsh.exe
     - write-host -f green "template ci\cd config successfull"
-test-pwsh-job:
-  stage: test_pwsh
+
+Build-NuPkg:
+  stage: Build-NuPkg
   script:
     - pwsh.exe
     - write-host -f green "template ci\cd config successfull"
-test-powershell-job:
-  stage: test_powershell
-  script:
-    - powershell.exe
-    - write-host -f green "template ci\cd config successfull"
-psgallary-deploy-job:
-  stage: deploy_psgallary
-  script:
-    - pwsh.exe
-psprivate-deploy-job:
-  stage: deploy_psprivate
+    
+Deploy-GitlabPackageRepo:
+  stage: Deploy-GitlabPackageRepo
   script:
     - pwsh.exe
     - write-host -f green "template ci\cd config successfull"
-#include:
-#  - template: auto-devops.gitlab-ci.yml
+    
+Mirror-to-Microsoft-PSGallary-job:
+  stage: Mirror-to-Microsoft-PSGallary
+  script:
+    - pwsh.exe
+    - write-host -f green "template ci\cd config successfull"
+
+Copy-Build-To-GoogleDrive-job:
+  stage: Mirror-to-Microsoft-PSGallary
+  script:
+    - pwsh.exe
+    - write-host -f green "template ci\cd config successfull"
