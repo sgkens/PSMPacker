@@ -1,4 +1,4 @@
-using module sm/format-inco.psm1
+using module .\format-inco.psm1
 
 # Imported Modules
 # Not Add to .psd1 file
@@ -274,7 +274,7 @@ function Build-Module {
         }
         if ( $ScriptFile -eq $true ) {
             # Update moduleManifest and ScriptFileInfo with the current version number 
-            Write-LogTastic -name "pmp" -message "Updating ScriptFile with version number @{pt:{path=$ouputpath}}" -type "Action" -submessage
+            Write-LogTastic -name "pmp" -message "Updpwshating ScriptFile with version number @{pt:{path=$ouputpath}}" -type "Action" -submessage
             $ScriptFile_Version_string = Get-Content "$SourcePath\$name.ps1"
             $ScriptFile_Version_string = $ScriptFile_Version_string -replace '^.VERSION\s(\d+\.\d+\.\d+)\.\d+', ".VERSION $BuildNumber.0"
             Set-Content "$SourcePath\$name.ps1" $ScriptFile_Version_string
@@ -283,8 +283,8 @@ function Build-Module {
             # Update moduleManifest and ScriptFileInfo with the current version number 
             Write-LogTastic -name "pmp" -message "Updating Manifest with version number @{pt:{path=$ouputpath}}" -type "Action" -submessage
             $Manifest_Version_string = Get-Content "$SourcePath\$name.psd1"
-            $Manifest_Version_string = $Manifest_Version_string -replace "ModuleVersion\s=\s'(\d+\.\d+\.\d+)'", "ModuleVersion = '$BuildNumber.0'"
-            Set-Content "$SourcePath\$name.psd1" $Manifest_Version_string       
+            $Manifest_Version_string = $Manifest_Version_string -replace "ModuleVersion(.*?)'(\d+\.\d+\.\d+\.\d+)'", "ModuleVersion     = '$BuildNumber.0'"
+            Set-Content "$SourcePath\$name.psd1" $Manifest_Version_string
         }
         Write-LogTastic -name "pmp" -message "Coping specified build files" -type "info" -submessage
         $FilesToCopy | ForEach-Object {
