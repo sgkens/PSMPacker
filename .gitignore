@@ -6,7 +6,7 @@
 
 # Ignore build output
 dist/
-
+libs/sm/packages
 # Ignore environment configuration files
 .env
 

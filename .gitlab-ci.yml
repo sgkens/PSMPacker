@@ -28,13 +28,36 @@ Build-PSModule-job:
     - if: '$CI_JOB_NAME == "Test-ScriptFileInfo-job"'
       when: on_success
 # -----------------------------------------------
-# PSSCriptA JOB - run PsScriptA.ps1 Against
+# Build-NuPkg JOB - run Build-NuPkg module
 # -----------------------------------------------
 Build-NuPkg-job:
   stage: Build-NuPkg
   script:
     - pwsh.exe
     - write-host -f green "template ci\cd config successfull"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # -----------------------------------------------
 # BUILD JOB - BUILD PowerShell Module For Release
 # -----------------------------------------------

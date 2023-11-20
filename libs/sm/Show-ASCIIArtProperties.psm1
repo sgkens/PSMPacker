@@ -31,3 +31,4 @@ Function Show-ASCIIArtProperties {
         }
     }
 }
+export-modulemember -function Show-ASCIIArtProperties

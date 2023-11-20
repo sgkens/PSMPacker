@@ -19,11 +19,11 @@
 
 .ICONURI https://gitlab.snowlab.tk/powershell/BuildTVF/-/blob/main/logo.svg
 
-.EXTERNALMODULEDEPENDENCIES 
+.EXTERNALMODULEDEPENDENCIES
 
 .REQUIREDSCRIPTS .\libs\Build-Moule.psm1, .\libs\sm\format-inco.psm1, .\libs\sm\show-ASCIIArtProperties.ps1
 
-.EXTERNALSCRIPTDEPENDENCIES
+.EXTERNALSCRIPTDEPENDENCIES 
 
 .RELEASENOTES
 https://gitlab.snowlab.tk/powershell/BuildTVF/-/blob/main/Releases.md
@@ -39,4 +39,11 @@ https://gitlab.snowlab.tk/powershell/BuildTVF/-/blob/main/Releases.md
 #> 
 Param()
 
+if(!(Get-Module -Name 'logtastic')){
+    Install-Module -Name 'logtastic' -Scope CurrentUser -Force
+    import-module -name 'Logtastic'
+}else{
+    Import-Module -Name 'Logtastic'
+}
 
+CobaDev
