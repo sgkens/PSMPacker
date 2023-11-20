@@ -1,4 +1,6 @@
 using module .\libs\Build-Module.psm1
+using module .\libs\Get-GitAutoVersion.psm1
+$AutoVersion = (Get-GitAutoVersion).Version
 Build-Module -SourcePath .\ `
              -DestinationPath .\dist `
              -Name "PSMPacker" `
@@ -6,7 +8,7 @@ Build-Module -SourcePath .\ `
              -FilesToCopy "PSMPacker.ps1","license","PSMPacker.psm1","icon.png" `
              -FoldersToCopy "libs" `
              -ScriptFile `
-             -Version 0.1.0
+             -Version $AutoVersion
 
 
 
