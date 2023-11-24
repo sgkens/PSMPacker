@@ -4,7 +4,7 @@ $ModuleName                 = "psmpacker"
 $GITLAB_NUGET_PROJECT_TOKEN = 'QuKeQXyos8vHSpGzT6rE'
 $Gitlab_Username            = "sgkens"
 $Gitlab_uri                 = "https://gitlab.lab.davilion.online"
-$projectid                  = "188"
+$projectid                  = "146"
 
 # ---[ ------ ]
 

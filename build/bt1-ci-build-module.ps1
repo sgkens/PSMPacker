@@ -1,5 +1,4 @@
 using module ..\libs\Build-Module.psm1
-using module ..\libs\Get-GitAutoVersion.psm1
 
 Remove-Item -Path .\dist\PSMPacker -Recurse -Force -ErrorAction SilentlyContinue
 $AutoVersion = (Get-GitAutoVersion).Version

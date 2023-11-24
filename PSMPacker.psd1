@@ -4,7 +4,7 @@
     RootModule        = 'psmpacker.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.2.0'
+    ModuleVersion     = '0.1.4.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -19,7 +19,7 @@
     CompanyName       = 'davilion'
 
     # Copyright statement for this module
-    Copyright         = '2023 Garvey k. Snow. All rights reserved.'
+    Copyright         = '2023 Garvey k.88 8ncSnow. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description       = 'PSMPacker is a helpful PowerShell utility module designed to assist in the build process of modules and script files.'
