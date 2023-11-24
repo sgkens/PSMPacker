@@ -19,7 +19,7 @@
     CompanyName       = 'davilion'
 
     # Copyright statement for this module
-    Copyright         = '2023 sgkens. All rights reserved.'
+    Copyright         = '2023 Garvey k. Snow. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description       = 'PSMPacker is a helpful PowerShell utility module designed to assist in the build process of modules and script files.'
@@ -63,8 +63,7 @@
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport = @(
-        'Build-Module',
-        'Get-GitAutoVersion'
+        'Build-Module'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
