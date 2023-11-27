@@ -1,6 +1,6 @@
   # puish to proget pscore repo 'powershell gallery'
   # Publish-Module -Path ".\dist\$zipFileName" -Repository pscore -NuGetApiKey $apikey
-  $modulename = "commitfusion"
+  $modulename = "psmpacker"
   $ModuleManifest = Test-ModuleManifest -path ".\dist\$ModuleName\$ModuleName`.psd1"
   publish-Module `
     -path ".\dist\$modulename" `

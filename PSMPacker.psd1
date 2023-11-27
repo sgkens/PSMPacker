@@ -4,7 +4,7 @@
     RootModule        = 'psmpacker.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.1.4.0'
+    ModuleVersion     = '0.1.5.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()

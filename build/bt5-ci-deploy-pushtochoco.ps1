@@ -1,4 +1,4 @@
-$ModuleName           = "commitfusion"
+$ModuleName           = "psmpacker"
 $ModuleManifest       = Test-ModuleManifest -path ".\dist\$ModuleName\$ModuleName`.psd1"
 $SemVerVersion        = $ModuleManifest.Version -replace "\.\d+$",""
 
