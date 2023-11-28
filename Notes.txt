@@ -1,2 +1,0 @@
-conventional commits guides, information, best practice
-  - https://www.conventionalcommits.org/en/v1.0.0/

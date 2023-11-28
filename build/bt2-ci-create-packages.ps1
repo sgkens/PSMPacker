@@ -5,6 +5,12 @@ using module ..\..\NuPSForge\libs\New-NupkgPacakge.psm1
 # ? But Nuget and Choco Does
 $Additional_descriptions = @"
 PSMPacker is a helpful PowerShell utility module designed to assist in the build process of modules and script files.
+
+ - Copy File(s) to destination
+ - Exclude File(s) from copy
+ - Create Nuspec File from Module Manifest
+ - Export Nuspec File to .nupkg
+ - Export Nuspec File to .zip
 "@
 
 # --Config--
@@ -16,7 +22,7 @@ $NuSpecParams = @{
   ModuleName = $ModuleName
   ModuleVersion = $ModuleManifest.Version -replace "\.\d+$",""
   Author = $ModuleManifest.Author
-  Description = "$($ModuleManifest.Description)`n`n$Additional_descriptions"
+  Description = "$($ModuleManifest.Description)"
   ProjectUrl = $ModuleManifest.PrivateData.PSData.ProjectUri
   License = "MIT"
   company = $ModuleManifest.CompanyName
@@ -28,7 +34,7 @@ $NuSpecParamsChoco = @{
   ModuleName = $ModuleName
   ModuleVersion = $ModuleManifest.Version -replace "\.\d+$",""
   Author = $ModuleManifest.Author
-  Description = "$($ModuleManifest.Description)"
+  Description  = "$($ModuleManifest.Description)`n`n$Additional_descriptions"
   ProjectUrl = $ModuleManifest.PrivateData.PSData.ProjectUri
   License = "MIT"
   company = $ModuleManifest.CompanyName
