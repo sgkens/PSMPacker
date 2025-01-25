@@ -6,7 +6,9 @@
     <span style="font-size: 36px; font-weight: bold;">PSMPacker</span>
     </br>
     <img src="https://img.shields.io/badge/MIT-License-blue" alt="MIT License" />
-    <p><b>PowerShell</b> utility module designed to assist in the creation of versioned folders for PowerShell module and script projects. It provides functions to create versioned folders, update version numbers in module manifests and script files, copy files and folders to the destination folder, and create zip archives of the build folder.</p>
+    <p>
+        <b>PowerShell</b> utility module designed to assist in the creation of versioned folders for PowerShell module and script projects. It provides functions to create versioned folders, update version numbers in module manifests and script files, copy files and folders to the destination folder, and create zip archives of the build folder.
+    </p>
 </div>
 
 ### 🔹 Features
