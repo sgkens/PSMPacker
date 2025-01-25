@@ -1,4 +1,6 @@
-using module .\format-inco.psm1
+using module .\Format-Inco.psm1
+using module .\Get-Propture.psm1
+using module .\Show-ASCIIArtProperties.psm1
 
 # Imported Modules
 # Not Add to .psd1 file
@@ -109,6 +111,8 @@ function Build-Module {
         [parameter(mandatory = $false)]
         [switch]$Manifest = $false, 
         [parameter(mandatory = $false)]
+        [array]$dependencies,
+        [parameter(mandatory = $false)]
         [switch]$ScriptFile = $false, 
         [parameter(Mandatory = $false)]
         [switch]$ApiraBuild = $false,
@@ -120,39 +124,75 @@ function Build-Module {
     )
     begin {
         # Show ASCII Art logo from txt.file
-       # Show-ASCIIArtProperties -filepath .\libs\logo.txt
+$logo = @"
+   ___   ___ __  __ ___           __
+  / _ \ / __/  |/  / _ \___ _____/ /_____ ____
+ / ___/_\ \/ /|_/ / ___/ _ `/ __/  '_/ -_) __/
+/_/   /___/_/  /_/_/   \_,_/\__/_/\_\\__/_/
+                                                                                                                                                     
+------------------------------------------------
+-o Version=v0.1.3
+-----------------/
+"@
+        $logo
         $SourcePath = (Get-ItemProperty -Path $SourcePath | select-object Fullname).FullName
         $ScriptFilePath = "$SourcePath\$Name`.ps1"
         $ManifestFilePath = "$SourcePath\$Name`.psd1"
-        Write-LogTastic -name "pmp" -message "Starting Build Proccess" -type "Action"
+        Write-Quicklog -name "pmp" -message "Starting Build Proccess" -type "Action"
+
+        # ?NOTE ______________________________________________________________
+        # Module dependancies as Test-Manifest runs in a new session each time
+        # So prior imports will cause error and break CI
+        # module most be available in one of the the default module root paths
+        # requirements copy module to one of the default module root paths
+        # or install module from repository not import required only availability
+        # see: $env:PSModulePath
+        if ($dependencies.Count -ne 0) {
+            Write-Quicklog -name "pmp" -message "Checking Module Dependencies..." -type "action"
+            $AvailableModules = Get-Module -ListAvailable
+            foreach ($dependency in $dependencies.GetEnumerator()) {
+                if ($dependency.type -eq "module") {
+                    # check if the module is available in one of the default module paths
+                    Write-Quicklog -name "pmp" -message "Checking Module @{pt:{Name=$($dependency.name)}} @{pt:{Version=$($dependency.version)}}" -type "action"
+                    if ($null -ne $AvailableModules.where({ $_.name -eq $dependency.name -and $_.version.ToString() -eq $dependency.version })) {
+                        Write-Quicklog -name "pmp" -message "Module @{pt:{Name=$($dependency.name)}} @{pt:{Version=$($dependency.version)}} is available" -type "success"
+                    }
+                    else {
+                        Write-Quicklog -name "pmp" -message "Module @{pt:{Name=$($dependency.name)}} @{pt:{Version=$($dependency.version)}} is not available" -type "error"
+                        exit
+                    }
+                }
+            }
+        }
+
         if ((Test-Path $ScriptFilePath) -and !(Test-Path $ManifestFilePath)) {
             $ModuleType = "Script"
-            Write-LogTastic -name "pmp" -message "Config: <{ct:yellow:scriptfile}> @{pt:{File=$SourcePath\$Name`.ps1}}" -type "info" -submessage
+            Write-Quicklog -name "pmp" -message "Config: <{cs:yellow:scriptfile}> @{pt:{File=$SourcePath\$Name.ps1}}" -type "info"
             try{
-                Write-LogTastic -name "pmp" -message "Testing ScriptFile Manifest" -type "info" -submessage
+                Write-Quicklog -name "pmp" -message "Testing ScriptFile Manifest" -type "info" -submessage
                 $ScriptInfo_data = Test-ScriptFileInfo -path $ScriptFilePath
-                Write-LogTastic -name "pmp" -message "Success {ct:blue:ScriptFileInfo} @{pt:{Name=$($ScriptInfo_data.Name)}} @{pt:{Version=$($ScriptInfo_data.Version)}}" -Type Success -SubMessage
+                Write-Quicklog -name "pmp" -message "Success {cs:blue:ScriptFileInfo} -> @{pt:{Name=$($ScriptInfo_data.Name)}} -> @{pt:{Version=$($ScriptInfo_data.Version)}}" -Type Success -SubMessage
                 }
             catch{
-                Write-LogTastic -name "pmp" -message "$($_.exception.message)" -type "error" -submessage
+                Write-Quicklog -name "pmp" -message "Error: $($_.exception.message)" -type "error" -submessage
                 exit;
             }
         }elseif (!(Test-Path $ScriptFilePath) -and (Test-Path $ManifestFilePath)){
             $ModuleType = "manifest"
-            Write-LogTastic -name "pmp" -message "Config: <{ct:yellow:scriptfile}> @{pt:{File=$SourcePath\$Name`.ps1}}" -type "info" -submessage
+            Write-Quicklog -name "pmp" -message "Config: <{cs:yellow:scriptfile}> @{pt:{File=$SourcePath\$Name`.ps1}}" -type "info"
             try {
-                Write-LogTastic -name "pmp" -message "Testing Module Manifest" -type "info"
+                Write-Quicklog -name "pmp" -message "Testing Module Manifest" -type "info"
                 $Manifest_data = Test-ModuleManifest -path $ManifestFilePath
-                Write-LogTastic -name "pmp" -message "Success <{ct:blue:Manifest}> {pt:{Name:$($Manifest_data.Name)}} {pt:{Version:$($Manifest_data.Version)}}" -type "info" -submessage
+                Write-Quicklog -name "pmp" -message "Success <{cs:blue:Manifest}> @{pt:{Name:$($Manifest_data.Name)}} @{pt:{Version:$($Manifest_data.Version)}}" -type "info"
             }
             catch {
-                Write-LogTastic -name "pmp" -message "$($_.exception.message)" -type "error"  -submessage
+                Write-Quicklog -name "pmp" -message "Error: $($_.exception.message)" -type "error"  -submessage
                 exit;
             } 
         }
         else{
-            Write-LogTastic -name "pmp" -message "No Manifest(.psd1) or ScriptFile(.ps1) file found" -type "Error"
-            Write-LogTastic -name "pmp" -Message "@{pt:{Source=$SourcePath}}" -type "Error" -submessage
+            Write-Quicklog -name "pmp" -message "No Manifest(.psd1) or ScriptFile(.ps1) file found" -type "Error"
+            Write-Quicklog -name "pmp" -Message "@{pt:{Source=$SourcePath}}" -type "Error" -submessage
             exit;
         }
     }
@@ -162,21 +202,22 @@ function Build-Module {
         if (!(Test-Path -Path $DestinationPath)) {
             throw "Destination path $DestinationPath does not exist."
             catch {
-                Write-LogTastic -name "pmp" -message "$($_.exception.message)" -type "error"
+                Write-Quicklog -name "pmp" -message "error: $($_.exception.message)" -type "error"
             }
-            Write-LogTastic -name "pmp" -message "Testing destination path@{pt:{DestinationPath=$DestinationPath}}" -type "info"
+            Write-Quicklog -name "pmp" -message "Testing destination path@{pt:{DestinationPath=$DestinationPath}}" -type "info"
             try {
-                Write-LogTastic -name "pmp" -message "Creating Folder @{pt:{DestinationPath=$DestinationPath}}" -type "action"
+                Write-Quicklog -name "pmp" -message "Creating Folder @{pt:{DestinationPath=$DestinationPath}}" -type "action"
                 New-Item -ItemType Directory -Path $DestinationPath
             }
             catch [system.exception] {
-                Write-LogTastic -name "pmp" -message "$($_.exception.message)" -type "error"
+                Write-Quicklog -name "pmp" -message "error: $($_.exception.message)" -type "error"
                 exit;
             }
         }
         if (!(Test-Path -Path $SourcePath)) { throw "Source path $SourcePath does not exist." }
         
-        Write-LogTastic -name "pmp" -message "Checking Build Increment Type..." -type "Success"
+        Write-Quicklog -name "pmp" -message "Checking Build Increment Type..." -type "Success"
+
         switch ($IncrementVersion) {
             <#
                    !Note This will output a version folder with the module name eg: pspacker_v1.0.0
@@ -184,150 +225,157 @@ function Build-Module {
             #>
             # Major: Increments the major version number by 1 and resets the minor and build numbers to 0.
             "major" { 
-                Write-LogTastic -name "pmp" -message "Checking @{pt:{BuildNumbers=major.minor.build(0.0.0)}}" -type "Action"
+                Write-Quicklog -name "pmp" -message "Checking @{pt:{BuildNumbers=major.minor.build(0.0.0)}}" -type "Action"
                 # generate the incremental version number from the destination folder based on the max value of the build number {0}.{0}.{0}
                 [array]$BuildNumberArray = @(0, 0, 0)
                 [array]$versionNumbers = @(0, 0, 0)
                 Get-ChildItem -Path $DestinationPath | Where-Object { $_.Name -match "^$($name)_v\d+\.\d+\.\d+$" } | ForEach-Object {
-                    Write-LogTastic -name "pmp" -message "Comparing build numbers... @{pt:{BN=$($BuildNumberArray)}}" -type "Success"
+                    Write-Quicklog -name "pmp" -message "Comparing build numbers... @{pt:{BN=$($BuildNumberArray)}}" -type "Success"
                     [array]$current_version_inc = $_.Name -replace "^$($name)_v", '' -split '\.';
                     for ($i = -1; $i -lt $versionNumbers.Length; $i++) {
                         $BuildNumberArray[$i] = [Math]::Max($BuildNumberArray[$i], $current_version_inc[$i])
                     }
                 }
-                Write-LogTastic -name "pmp" -message "Done." -type "complete"
+                Write-Quicklog -name "pmp" -message "Done." -type "complete"
                 # Build Number Formatted = $BuildNumberArray -replace " ","."
-                $BuildNumberArray[0]++; Write-LogTastic -name "pmp" -message "Incrementing build Revision @{pt:{Revision=Major-$BuildNumber}}" -type "Action"
+                $BuildNumberArray[0]++; Write-Quicklog -name "pmp" -message "Incrementing build Revision @{pt:{Revision=Major-$BuildNumber}}" -type "Action"
                 $BuildNumber = $BuildNumberArray -join "," -replace ",", "."
-                Write-LogTastic -name "pmp" -message "Generating Build..." -type "action"
+                Write-Quicklog -name "pmp" -message "Generating Build..." -type "action"
                 # Generate Version folder string
                 $versionedFolderName = "_v{0}.{1}.{2}" -f $BuildNumberArray
                 $ouputpath = $DestinationPath + "\" + $name + $versionedFolderName
             }
             # Minor: Increments the minor version number by 1 and resets the build number to 0.
             "minor" { 
-                Write-LogTastic -name "pmp" -message "Checking @{pt:{BuildNumbers=major.minor.build(0.0.0)}}" -type "Action"
+                Write-Quicklog -name "pmp" -message "Checking @{pt:{BuildNumbers=major.minor.build(0.0.0)}}" -type "Action"
                 # generate the incremental version number from the destination folder based on the max value of the build number {0}.{0}.{0}
                 [array]$BuildNumberArray = @(0, 0, 0)
                 [array]$versionNumbers = @(0, 0, 0)
                 Get-ChildItem -Path $DestinationPath | Where-Object { $_.Name -match "^$($name)_v\d+\.\d+\.\d+$" } | ForEach-Object {
-                    Write-LogTastic -name "pmp" -message "Comparing build numbers... @{pt:{BN=$($BuildNumberArray)}}" -type "Success"
+                    Write-Quicklog -name "pmp" -message "Comparing build numbers... @{pt:{BN=$($BuildNumberArray)}}" -type "Success"
                     [array]$current_version_inc = $_.Name -replace "^$($name)_v", '' -split '\.';
                     for ($i = -1; $i -lt $versionNumbers.Length; $i++) {
                         $BuildNumberArray[$i] = [Math]::Max($BuildNumberArray[$i], $current_version_inc[$i])
                     }
                 }
-                Write-LogTastic -name "pmp" -message "Done." -type "complete"
+                Write-Quicklog -name "pmp" -message "Done." -type "complete"
                 # Build Number Formatted = $BuildNumberArray -replace " ","."
-                $BuildNumberArray[1]++; Write-LogTastic -name "pmp" -message "Incrementing build Revision @{pt:{Revision=Minor-$BuildNumber}}" -type "Action"
+                $BuildNumberArray[1]++; Write-Quicklog -name "pmp" -message "Incrementing build Revision @{pt:{Revision=Minor-$BuildNumber}}" -type "Action"
                 $BuildNumber = $BuildNumberArray -join "," -replace ",", "."
-                Write-LogTastic -name "pmp" -message "Build Module..." -type "action"
+                Write-Quicklog -name "pmp" -message "Build Module..." -type "action"
                 # Generate Version folder string
                 $versionedFolderName = "_v{0}.{1}.{2}" -f $BuildNumberArray
                 $ouputpath = $DestinationPath + "\" + $name + $versionedFolderName
             }
             # Build: Increments the build number by 1.
             "build" { 
-                Write-LogTastic -name "pmp" -message "Checking @{pt:{BuildNumbers=major.minor.build(0.0.0)}}" -type "Action"
+                Write-Quicklog -name "pmp" -message "Checking @{pt:{BuildNumbers=major.minor.build(0.0.0)}}" -type "Action"
                 # generate the incremental version number from the destination folder based on the max value of the build number {0}.{0}.{0}
                 [array]$BuildNumberArray = @(0, 0, 0)
                 [array]$versionNumbers = @(0, 0, 0)
                 Get-ChildItem -Path $DestinationPath | Where-Object { $_.Name -match "^$($name)_v\d+\.\d+\.\d+$" } | ForEach-Object {
-                    Write-LogTastic -name "pmp" -message "Comparing build numbers... @{pt:{BN=$($BuildNumberArray)}}" -type "Success"
+                    Write-Quicklog -name "pmp" -message "Comparing build numbers... @{pt:{BN=$($BuildNumberArray)}}" -type "Success"
                     [array]$current_version_inc = $_.Name -replace "^$($name)_v", '' -split '\.';
                     for ($i = -1; $i -lt $versionNumbers.Length; $i++) {
                         $BuildNumberArray[$i] = [Math]::Max($BuildNumberArray[$i], $current_version_inc[$i])
                     }
                 }
-                Write-LogTastic -name "pmp" -message "Done." -type "complete"
+                Write-Quicklog -name "pmp" -message "Done." -type "complete"
                 # Build Number Formatted = $BuildNumberArray -replace " ","."
-                $BuildNumberArray[2]++; Write-LogTastic -name "pmp" -message "Incrementing build Revision @{pt:{Revision=Build-$BuildNumber}}" -type "Action"
+                $BuildNumberArray[2]++; Write-Quicklog -name "pmp" -message "Incrementing build Revision @{pt:{Revision=Build-$BuildNumber}}" -type "Action"
                 $BuildNumber = $BuildNumberArray -join "," -replace ",", "."
-                Write-LogTastic -name "pmp" -message "Build Module..." -type "action"
+                Write-Quicklog -name "pmp" -message "Build Module..." -type "action"
                 # Generate Version folder string
                 $versionedFolderName = "_v{0}.{1}.{2}" -f $BuildNumberArray
                 $ouputpath = $DestinationPath + "\" + $name + $versionedFolderName 
             }
-            # Noe: Does not increment the version number based on module_v0.0.0 for the folder
-            # ! Note that this will overwrite the existing folder if it exists
-            # !      and will not increment the build number and will require the -version parameter
-            # !      logic CommitFusion.GitAutoVersion function can be used to return the version number
-            # !      or script Get-GitAutoVersion can be used to return the version number based on the git repo and the type of commit
+            # ?NOTE ____________________________________________________________________ 
+            # Does not increment the version number based on module_v0.0.0 for the folder
+            # that this will overwrite the existing folder if it exists and will not increment the build
+            # number and will require the -version parameter logic CommitFusion.GitAutoVersion function
+            # can be used to return the version number or script Get-GitAutoVersion can be used to return the version
+            # number based on the git repo and the type of commit
             "none" { 
-                Write-LogTastic -name "pmp" -message "No Incrementation @{pt:{Revision=Build-NoIncr}}" -type "Action"
-                Write-LogTastic -name "pmp" -message "Build Module..." -type "action"
+                Write-Quicklog -name "pmp" -message "No Incrementation @{pt:{Revision=Build-NoIncr}}" -type "Action"
+                Write-Quicklog -name "pmp" -message "Build Module..." -type "action"
                 # Generate Version folder string
                 $ouputpath = $DestinationPath + "\" + $name
                 $buildNumber = $Version
             }
         }
-        Write-LogTastic -name "pmp" -message "File-Operations---------------------\" -type "Info"
-        Write-LogTastic -Name pmp -message "Excluded items" -type "Info"
+        Write-Quicklog -name "pmp" -message "File-Operations---------------------\" -type "Info"
+        Write-Quicklog -Name pmp -message "Excluded items" -type "Info"
         # Create the versioned folder
         try {
-            Write-LogTastic -name "pmp" -message "Creating Folder @{pt:{path=$ouputpath}}" -type "Action" -submessage
+            Write-Quicklog -name "pmp" -message "Creating Folder @{pt:{path=$ouputpath}}" -type "Action" -submessage
             New-Item -ItemType Directory -Path $ouputpath -force | out-null
         }
         catch [System.Exception] {
-            Write-LogTastic -name "pmp" -message "-$($_.Exception.Message)" -type "error" -submessage
+            Write-Quicklog -name "pmp" -message "-$($_.Exception.Message)" -type "error" -submessage
             exit;
         }
         if ( $ScriptFile -eq $true ) {
             # Update moduleManifest and ScriptFileInfo with the current version number 
-            Write-LogTastic -name "pmp" -message "Updpwshating ScriptFile with version number @{pt:{path=$ouputpath}}" -type "Action" -submessage
+            Write-Quicklog -name "pmp" -message "Updpwshating ScriptFile with version number @{pt:{path=$ouputpath}}" -type "Action" -submessage
             $ScriptFile_Version_string = Get-Content "$SourcePath\$name.ps1"
             $ScriptFile_Version_string = $ScriptFile_Version_string -replace '^.VERSION\s(\d+\.\d+\.\d+)\.\d+', ".VERSION $BuildNumber.0"
             Set-Content "$SourcePath\$name.ps1" $ScriptFile_Version_string
         } 
         if ( $Manifest -eq $true ) {
             # Update moduleManifest and ScriptFileInfo with the current version number 
-            Write-LogTastic -name "pmp" -message "Updating Manifest with version number @{pt:{path=$ouputpath}}" -type "Action" -submessage
+            Write-Quicklog -name "pmp" -message "Updating Manifest with version number @{pt:{path=$ouputpath}}" -type "Action" -submessage
             $Manifest_Version_string = Get-Content "$SourcePath\$name.psd1"
             $Manifest_Version_string = $Manifest_Version_string -replace "ModuleVersion(.*?)'(\d+\.\d+\.\d+\.\d+)'", "ModuleVersion     = '$BuildNumber.0'"
             Set-Content "$SourcePath\$name.psd1" $Manifest_Version_string
         }
-        Write-LogTastic -name "pmp" -message "Coping specified build files" -type "info" -submessage
-        $FilesToCopy | ForEach-Object {
-            try {
-                Write-LogTastic -name "pmp" -message "Adding @{pt:{File=$( $_ )}}" -type "action" -submessage
-                Copy-Item -Path (Join-Path -Path $SourcePath -ChildPath $_) -Destination $ouputpath -Recurse | out-null
+        Write-Quicklog -name "pmp" -message "Coping specified build files" -type "info" -submessage
+        if ($FilesToCopy.Count -ne 0) {
+            $FilesToCopy | ForEach-Object {
+                try {
+                    Write-Quicklog -name "pmp" -message "Adding @{pt:{File=$( $_ )}}" -type "action" -submessage
+                    Copy-Item -Path (Join-Path -Path $SourcePath -ChildPath $_) -Destination $ouputpath -Recurse | out-null
             
-            }
-            catch [System.Exception] {
-                Write-LogTastic -name "pmp" -message "Error @{pt:{Error=$( $_.Exception.Message )}}" -type "error" -submessage
-                exit;
-            }
-        }
-        $AdditionalFiles | ForEach-Object {
-            try {
-                Write-LogTastic -name "pmp" -message "Adding file @{pt:{File=$( $_ )}}" -type "action" -submessage
-                Copy-Item -Recurse -Path (Join-Path -Path $SourcePath -ChildPath $_) -Destination $ouputpath | out-null
-            }
-            catch [System.Exception] {
-                Write-LogTastic -name "pmp" -message "Error @{pt:{Error=$( $_.Exception.Message )}}" -type "error" -submessage
-                exit;
+                }
+                catch [System.Exception] {
+                    Write-Quicklog -name "pmp" -message "Error @{pt:{Error=$( $_.Exception.Message )}}" -type "error" -submessage
+                    exit;
+                }
             }
         }
-        $FoldersToCopy | ForEach-Object {
-            try {
-                Write-LogTastic -name "pmp" -message "Adding folder @{pt:{Folder=$( $_ )}}" -type "action" -submessage
-                Copy-Item -Recurse -Path (Join-Path -Path $SourcePath -ChildPath $_) -Destination $ouputpath -Exclude $ExcludedFiles | out-null
-            }
-            catch [System.Exception] {
-                Write-LogTastic -name "pmp" -message "Error @{pt:{Error=$( $_.Exception.Message )}}" -type "error" -submessage
-                exit;
-            }
+        if($AdditionalFiles.Count -ne 0) {
+            $AdditionalFiles | ForEach-Object {
+                try {
+                    Write-Quicklog -name "pmp" -message "Adding file @{pt:{File=$( $_ )}}" -type "action" -submessage
+                    Copy-Item -Recurse -Path (Join-Path -Path $SourcePath -ChildPath $_) -Destination $ouputpath | out-null
+                }
+                catch [System.Exception] {
+                    Write-Quicklog -name "pmp" -message "Error @{pt:{Error=$( $_.Exception.Message )}}" -type "error" -submessage
+                    exit;
+                }
+            }   
+        }
+        if($FoldersToCopy.Count -ne 0) {
+            $FoldersToCopy | ForEach-Object {
+                try {
+                    Write-Quicklog -name "pmp" -message "Adding folder @{pt:{Folder=$( $_ )}}" -type "action" -submessage
+                    Copy-Item -Recurse -Path (Join-Path -Path $SourcePath -ChildPath $_) -Destination $ouputpath -Exclude $ExcludedFiles | out-null
+                }
+                catch [System.Exception] {
+                    Write-Quicklog -name "pmp" -message "Error @{pt:{Error=$( $_.Exception.Message )}}" -type "error" -submessage
+                    exit;
+                }
+            }   
         }
         if ($UpdateSCIIArt -eq $true) {} #TODO: Update SCII Art, unsure if will include
         if ($zipbuild) {
-            Write-LogTastic -name "pmp" -message "Zipping build @{pt{folder:$ouputpath}}" -type "info"
+            Write-Quicklog -name "pmp" -message "Zipping build @{pt{folder:$ouputpath}}" -type "info"
             Compress-Archive -Path $ouputpath -CompressionLevel Optimal -DestinationPath "$ouputpath.zip"
-            Write-LogTastic -name "pmp" -message "Done." -type "success"
+            Write-Quicklog -name "pmp" -message "Done." -type "success"
         }
     }
     end {
-        Write-LogTastic -name "pmp" -message "Finished" -type "Complete"
-        Write-LogTastic -name "pmp" -message "@{pt:{name=$name}} @{pt:{version=$BuildNumber}}" -type "complete" -submessage
+        Write-Quicklog -name "pmp" -message "Finished" -type "Complete"
+        Write-Quicklog -name "pmp" -message "@{pt:{name=$name}} @{pt:{version=$BuildNumber}}" -type "complete" -submessage
         $buildfoldersize = [math]::round((Get-childitem $ouputpath -Recurse | Measure-Object -Property length -Sum).Sum / 1MB, 2)
                 
         #^ HEAD
@@ -358,6 +406,11 @@ function Build-Module {
             #   - RequiredAssemblies
             #   - ScriptsToProcess
             #   - TypesToProcess
+            #   - ExportedCommands
+            #   - CmdletsToExport
+            #   - FunctionsToExport
+            #   - VariablesToExport
+            #   - AliasesToExport
             $moduleData = Import-PowerShellDataFile -Path "$SourcePath\$name.psd1"
             foreach($mo in $config_module_data){
                 if (
@@ -369,7 +422,11 @@ function Build-Module {
                     $mo.name -eq 'RequiredAssemblies' -or 
                     $mo.name -eq 'ScriptsToProcess' -or 
                     $mo.name -eq 'TypesToProcess' -or
-                    $mo.name -eq 'ExportedCommands'
+                    $mo.name -eq 'ExportedCommands' -or
+                    $mo.name -eq 'CmdletsToExport' -or
+                    $mo.name -eq 'FunctionsToExport' -or
+                    $mo.name -eq 'VariablesToExport' -or
+                    $mo.name -eq 'AliasesToExport'
                     ) 
                     {
                         switch ($mo.name){
@@ -399,6 +456,21 @@ function Build-Module {
                             }
                             'ExportedCommands' { 
                                 write-host "|  $(Format-Inco -String $($mo.name) -Color Yellow): $($moduleData.ExportedCommands)"  -ForegroundColor Green
+                            }
+                            'CmdletsToExport' { 
+                                write-host "|  $(Format-Inco -String $($mo.name) -Color Yellow): $($moduleData.CmdletsToExport)"  -ForegroundColor Green
+                            }
+                            'FunctionsToExport' { 
+                                write-host "|  $(Format-Inco -String $($mo.name) -Color Yellow): $($moduleData.FunctionsToExport)"  -ForegroundColor Green
+                            }
+                            'VariablesToExport' { 
+                                write-host "|  $(Format-Inco -String $($mo.name) -Color Yellow): $($moduleData.VariablesToExport)"  -ForegroundColor Green
+                            }
+                            'AliasesToExport' { 
+                                write-host "|  $(Format-Inco -String $($mo.name) -Color Yellow): $($moduleData.AliasesToExport)"  -ForegroundColor Green
+                            }    
+                            default {
+                                
                             }
 
                         }

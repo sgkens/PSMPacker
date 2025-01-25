@@ -3,7 +3,7 @@ Function Get-ColorTune(){
     [OutputType([string])]
     param(
         [parameter(mandatory=$true)]
-        [string]$text,
+        [string]$string,
         [parameter(mandatory=$false)]
         [ValidateSet(
             "blue",
