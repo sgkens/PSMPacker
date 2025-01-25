@@ -13,6 +13,11 @@ libs/sm/packages
 # vscode
 .vscode/
 
+# commitfusion commit helper
+./commit-helper.ps1
+./tools/commit-helper.ps1
+./tools/scripts/commit-helper.ps1
+
 # Ignore OS-generated files
 .DS_Store
 Thumbs.db
