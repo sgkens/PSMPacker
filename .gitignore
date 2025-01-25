@@ -14,9 +14,9 @@ libs/sm/packages
 .vscode/
 
 # commitfusion commit helper
-./commit-helper.ps1
-./tools/commit-helper.ps1
-./tools/scripts/commit-helper.ps1
+commit-helper.ps1
+tools/commit-helper.ps1
+tools/scripts/commit-helper.ps1
 
 # Ignore OS-generated files
 .DS_Store
