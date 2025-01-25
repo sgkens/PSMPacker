@@ -1,13 +1,23 @@
+<!-- PROJECT LOGO -->
 <div align="center">
     <a href="https://github.com/othneildrew/Best-README-Template">
         <img src="https://raw.githubusercontent.com/phellams/phellams-general-resources/refs/heads/main/logos/psmpacker/psmpacker-logo-base.svg" alt="Logo" width="80" height="80">
     </a>
-    </br>
+</div>
+<!-- PROJECT NAME -->
+<div align="center">
     <span style="font-size: 36px; font-weight: bold;">PSMPacker</span>
-    </br>
+</div>
+
+<!-- LICENSE BADGE -->
+<div align="center">
     <img src="https://img.shields.io/badge/MIT-License-blue" alt="MIT License" />
+</div>
+
+<!-- PROJECT DESCRIPTION -->
+<div align="center">
     <p>
-        <b>PowerShell</b> utility module designed to assist in the creation of versioned folders for PowerShell module and script projects. It provides functions to create versioned folders, update version numbers in module manifests and script files, copy files and folders to the destination folder, and create zip archives of the build folder.
+        <b>PSMPacker</b> is a <b>PowerShell</b> utility module designed to assist in the creation of versioned folders for PowerShell module and script projects. It provides functions to create versioned folders, update version numbers in module manifests and script files, copy files and folders to the destination folder, and create zip archives of the build folder.
     </p>
 </div>
 
