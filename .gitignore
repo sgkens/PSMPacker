@@ -7,8 +7,11 @@
 # Ignore build output
 dist/
 libs/sm/packages
-# Ignore environment configuration files
+# Ignore envincronment configuration files
 .env
+
+# vscode
+.vscode/
 
 # Ignore OS-generated files
 .DS_Store
