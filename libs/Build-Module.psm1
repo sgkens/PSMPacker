@@ -114,8 +114,8 @@ function Build-Module {
         [array]$dependencies,
         [parameter(mandatory = $false)]
         [switch]$ScriptFile = $false, 
-        [parameter(Mandatory = $false)]
-        [switch]$ApiraBuild = $false,
+        # [parameter(Mandatory = $false)]
+        # [switch]$ApiraBuild = $false,
         [parameter(Mandatory = $false)]
         [switch]$Zipbuild = $false,
         [parameter(Mandatory = $false)]
@@ -183,7 +183,7 @@ $logo = @"
             try {
                 Write-Quicklog -name "pmp" -message "Testing Module Manifest" -type "info"
                 $Manifest_data = Test-ModuleManifest -path $ManifestFilePath
-                Write-Quicklog -name "pmp" -message "Success <{cs:blue:Manifest}> @{pt:{Name:$($Manifest_data.Name)}} @{pt:{Version:$($Manifest_data.Version)}}" -type "info"
+                Write-Quicklog -name "pmp" -message "Success <{cs:blue:Manifest}> @{pt:{Name=$($Manifest_data.Name)}} @{pt:{Version=$($Manifest_data.Version)}}" -type "info"
             }
             catch {
                 Write-Quicklog -name "pmp" -message "Error: $($_.exception.message)" -type "error"  -submessage
