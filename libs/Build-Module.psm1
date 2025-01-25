@@ -2,64 +2,57 @@ using module .\Format-Inco.psm1
 using module .\Get-Propture.psm1
 using module .\Show-ASCIIArtProperties.psm1
 
-# Imported Modules
-# Not Add to .psd1 file
-
 <#
 .SYNOPSIS
-    pmpacker is a powershell utility module to help with the creation of versioned folders for Powershell Module and Script projects.
+    PMPacker is a PowerShell utility module to help with the creation of versioned folders for PowerShell module and script projects.
 
 .DESCRIPTION
-    Build-Module is a function that will create a versioned folder with or without the _v{0}.{1}.{2} tags
-    Update the version number in the module manifest and/or script file, and copy files and folders to the destination folder.
+    Build-Module is a function that will create a versioned folder with or without the _v{0}.{1}.{2} tags,
+    update the version number in the module manifest and/or script file, and copy files and folders to the destination folder.
     Copying files and folders can be done with the -FilesToCopy and -FoldersToCopy parameters.
-    the - Additional files can be copied with the -AdditionalFiles parameter.
+    The -AdditionalFiles can be copied with the -AdditionalFiles parameter.
     The -IncrementVersion parameter can be used to increment the version number in the module manifest and/or script file.
-    The -Manifest and -ScriptFile parameters can be used to rename the .VERSION inside the Module Manifest .psd1 and PSScriptFileInfo .ps1 files.
-    The -ApiraBuild parameter can be used to create a .apira file for use with the Apira module.
+    The -Manifest and -ScriptFile parameters can be used to rename the .Version inside the module manifest .psd1 and PSScriptFileInfo .ps1 files.
     The -ZipBuild parameter can be used to create a .zip file of the build folder.
 
-.PARAMETER $SourcePath
+.PARAMETER SourcePath
     The path to the source folder.
 
-.PARAMETER $DestinationPath
+.PARAMETER DestinationPath
     The path to the destination folder.
 
 .PARAMETER Name
-    The name of the module or script/Same Name as the source folder.
+    The name of the module or script/same name as the source folder.
 
-.PARAMETER $IncrementVersion
+.PARAMETER IncrementVersion
     The version number to increment. Valid values are Major, Minor, Build, and None. Default value is Minor.
 
-.PARAMETER $FilesToCopy
+.PARAMETER FilesToCopy
     The files to copy to the destination folder.
 
-.PARAMETER $AdditionalFiles
+.PARAMETER AdditionalFiles
     The additional files to copy to the destination folder.
 
-.PARAMETER $FoldersToCopy
+.PARAMETER FoldersToCopy
     The folders to copy to the destination folder.
 
-.PARAMETER $Manifest
-    Rename the .VERSION inside the Module Manifest .psd1 file.
+.PARAMETER Manifest
+    Rename the .Version inside the module manifest .psd1 file.
 
-.PARAMETER $ScriptFile
-    Rename the .VERSION inside the PSScriptFileInfo .ps1 file.
+.PARAMETER ScriptFile
+    Rename the .Version inside the PSScriptFileInfo .ps1 file.
 
-.PARAMETER $ApiraBuild
-    Create a .apira file for use with the Apira module.
-
-.PARAMETER $ZipBuild
+.PARAMETER ZipBuild
     Create a .zip file of the build folder.
 
 .EXAMPLE
-    Example usage of the function.
+    Example usage of the function:
 
-        PS> Build-Module -SourcePath G:\devspace\projects\powershell\_repos\pmpacker `
-                        -DestinationPath G:\devspace\projects\powershell\_repos\pmpacker\dist `
-                        -Name "pmpacker" `
+        PS> Build-Module -SourcePath G:\DevSpace\Projects\PowerShell\_Repos\PMPacker `
+                        -DestinationPath G:\DevSpace\Projects\PowerShell\_Repos\PMPacker\dist `
+                        -Name "PMPacker" `
                         -IncrementVersion None `
-                        -FilesToCopy @("pmpacker.ps1","license") `
+                        -FilesToCopy @("PMPacker.ps1","LICENSE") `
                         -FoldersToCopy @("libs") `
                         -ScriptFile `
                         -Version 0.2.0
@@ -67,29 +60,29 @@ using module .\Show-ASCIIArtProperties.psm1
 .INPUTS
     -SourcePath [string] - The path to the source folder.
     -DestinationPath [string] - The path to the destination folder.
-    -Name [string] - The name of the module or script/Same Name as the source folder.
+    -Name [string] - The name of the module or script/same name as the source folder.
     -IncrementVersion [string] - The version number to increment. Valid values are Major, Minor, Build, and None. Default value is Minor.
     -FilesToCopy [string[]] - The files to copy to the destination folder.
     -AdditionalFiles [string[]] - The additional files to copy to the destination folder.
     -FoldersToCopy [string[]] - The folders to copy to the destination folder.
-    -Manifest [switch] - Rename the .VERSION inside the Module Manifest .psd1 file.
-    -ScriptFile [switch] - Rename the .VERSION inside the PSScriptFileInfo .ps1 file.
-    -ApiraBuild [switch] - Create a .apira file for use with the Apira module.
+    -Manifest [switch] - Rename the .Version inside the module manifest .psd1 file.
+    -ScriptFile [switch] - Rename the .Version inside the PSScriptFileInfo .ps1 file.
     -ZipBuild [switch] - Create a .zip file of the build folder.
 
 .OUTPUTS
-    None, SdtOut to console.
+    None, stdout to console.
 
 .NOTES
-    This ScriptFile Module was build to help with the creation of versioned folders for Powershell Module 
-    and Script projects, before using NUPacker to create a NuGet package.
+    This ScriptFile module was built to help with the creation of versioned folders for PowerShell module 
+    and script projects, before using NuPacker to create a NuGet package.
 
 .LINK
     Related resources or links.
-x
+
 #>
 function Build-Module {
     [CmdletBinding()]
+    [Alias("bmod")]
     param (
         [parameter(mandatory = $true, position = 0)]
         [string]$SourcePath,
@@ -114,8 +107,6 @@ function Build-Module {
         [array]$dependencies,
         [parameter(mandatory = $false)]
         [switch]$ScriptFile = $false, 
-        # [parameter(Mandatory = $false)]
-        # [switch]$ApiraBuild = $false,
         [parameter(Mandatory = $false)]
         [switch]$Zipbuild = $false,
         [parameter(Mandatory = $false)]
@@ -167,7 +158,7 @@ $logo = @"
 
         if ((Test-Path $ScriptFilePath) -and !(Test-Path $ManifestFilePath)) {
             $ModuleType = "Script"
-            Write-Quicklog -name "pmp" -message "Config: <{cs:yellow:scriptfile}> @{pt:{File=$SourcePath\$Name.ps1}}" -type "info"
+            Write-Quicklog -name "pmp" -message "Config: <{cs:yellow:scriptfile}> @{pt:{File=$ScriptFilePath}}" -type "info"
             try{
                 Write-Quicklog -name "pmp" -message "Testing ScriptFile Manifest" -type "info" -submessage
                 $ScriptInfo_data = Test-ScriptFileInfo -path $ScriptFilePath
@@ -179,7 +170,7 @@ $logo = @"
             }
         }elseif (!(Test-Path $ScriptFilePath) -and (Test-Path $ManifestFilePath)){
             $ModuleType = "manifest"
-            Write-Quicklog -name "pmp" -message "Config: <{cs:yellow:scriptfile}> @{pt:{File=$SourcePath\$Name`.ps1}}" -type "info"
+            Write-Quicklog -name "pmp" -message "Config: <{cs:yellow:manifest}> @{pt:{File=$ManifestFilePath}}" -type "info"
             try {
                 Write-Quicklog -name "pmp" -message "Testing Module Manifest" -type "info"
                 $Manifest_data = Test-ModuleManifest -path $ManifestFilePath
@@ -497,4 +488,13 @@ $logo = @"
     }
 }
 
-Export-ModuleMember -Function Build-Module
+$cmdletconfig = @{
+    function = @(
+        'Build-Module'
+    )
+    alias = @(
+        'bmod'
+    )
+}
+
+Export-ModuleMember @cmdletconfig
